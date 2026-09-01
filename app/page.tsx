@@ -8,10 +8,23 @@ const LANGUAGES = [
 ]
 
 
+
+
 export default function HomePage() {
   const [text, setText] = useState('');
   const [sourceLanguage, setSourceLanguage] = useState('pt')
   const [targetLanguage, setTargetLanguage] = useState('fa')
+  const [apiResponse, setApiResponse] = useState<string | null>(null)
+
+async function handleProcess() {
+  const response = await fetch('/api/process', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, sourceLanguage, targetLanguage }),
+  })
+  const data = await response.json()
+  setApiResponse(JSON.stringify(data, null, 2))
+}
   return (
     <main className="max-w-2xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-2">StudyLens AI</h1>
@@ -54,12 +67,18 @@ export default function HomePage() {
         </div>
       </div>
 
-      <button className="bg-gray-900 text-white px-6 py-3 rounded-lg font-medium">
+      <button className="bg-gray-900 text-white px-6 py-3 rounded-lg font-medium" onClick={handleProcess}>
         Process
       </button>
+      {apiResponse && (
+        <pre className="mt-6 bg-gray-100 p-4 rounded-lg overflow-x-auto text-black">
+          {apiResponse}
+        </pre>
+      )}
       <p className="mt-4 text-sm text-gray-500">
         You typed {text.length} characters
       </p>
     </main>
   )
+
 }
