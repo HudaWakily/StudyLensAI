@@ -16,15 +16,15 @@ export default function HomePage() {
   const [targetLanguage, setTargetLanguage] = useState('fa')
   const [apiResponse, setApiResponse] = useState<string | null>(null)
 
-async function handleProcess() {
-  const response = await fetch('/api/process', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, sourceLanguage, targetLanguage }),
-  })
-  const data = await response.json()
-  setApiResponse(JSON.stringify(data, null, 2))
-}
+  async function handleProcess() {
+    const response = await fetch('/api/process', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, sourceLanguage, targetLanguage }),
+    })
+    const data = await response.json()
+    setApiResponse(JSON.stringify(data, null, 2))
+  }
   return (
     <main className="max-w-2xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-2">StudyLens AI</h1>
@@ -71,9 +71,16 @@ async function handleProcess() {
         Process
       </button>
       {apiResponse && (
-        <pre className="mt-6 bg-gray-100 p-4 rounded-lg overflow-x-auto text-black">
-          {apiResponse}
-        </pre>
+        <div className="mt-6 space-y-4">
+          <div>
+            <h2 className="font-semibold">Summary</h2>
+            <p>{JSON.parse(apiResponse).summary}</p>
+          </div>
+          <div>
+            <h2 className="font-semibold">Simple Explanation</h2>
+            <p>{JSON.parse(apiResponse).simpleExplanation}</p>
+          </div>
+        </div>
       )}
       <p className="mt-4 text-sm text-gray-500">
         You typed {text.length} characters

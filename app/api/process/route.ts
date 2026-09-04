@@ -1,12 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { processStudyText } from '@/lib/ai'
 
 export async function POST(request: NextRequest) {
-  const body = await request.json()
+  try {
+    const body = await request.json()
 
-  return NextResponse.json({
-    message: 'Backend received your data!',
-    receivedText: body.text,
-    receivedSourceLanguage: body.sourceLanguage,
-    receivedTargetLanguage: body.targetLanguage,
-  })
+    const result = await processStudyText(
+      body.text,
+      body.sourceLanguage,
+      body.targetLanguage
+    )
+
+    return NextResponse.json(result)
+  } catch (error) {
+    console.error('Process API error:', error)
+
+    return NextResponse.json(
+      {
+        error: 'Failed to process study text',
+      },
+      {
+        status: 500,
+      }
+    )
+  }
 }
