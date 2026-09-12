@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
       body.targetLanguage
     )
 
-    return NextResponse.json(result)
+    return NextResponse.json({result ,})
   } catch (error) {
     console.error('Process API error:', error)
 
