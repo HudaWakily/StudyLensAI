@@ -44,8 +44,10 @@ export default function HomePage() {
   }
 
   return (
-    <main className="max-w-xl mx-auto px-6 py-16">
-      <h1 className="font-serif text-4xl mb-1">StudyLens AI</h1>
+    <main className="min-h-screen max-w-4xl mx-auto px-6 py-16">
+      <h1 className="font-display text-5xl font-bold tracking-tight mb-2">
+        StudyLens AI
+      </h1>
       <p className="text-ink/70 mb-10">
         Paste your study text, choose your languages, and get a summary you can actually learn from.
       </p>
@@ -56,7 +58,7 @@ export default function HomePage() {
           onChange={(e) => setText(e.target.value)}
           placeholder="Paste your study text here..."
           rows={8}
-          className="w-full bg-transparent border border-rule rounded-none p-3 mb-6 focus:outline-none focus:border-ink"
+          className="w-full min-h-52 bg-surface border border-rule rounded-2xl p-4 mb-6 text-ink placeholder:text-muted focus:outline-none focus:border-highlighter transition"
         />
 
         <div className="flex gap-8 mb-6">
@@ -89,7 +91,7 @@ export default function HomePage() {
         <button
           onClick={handleProcess}
           disabled={loading || text.trim().length === 0}
-          className="bg-highlighter text-ink px-6 py-2.5 font-medium hover:brightness-95 transition disabled:opacity-40"
+          className="bg-highlighter text-white px-7 py-3 rounded-xl font-medium hover:bg-purple-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {loading ? 'Processing...' : 'Process'}
         </button>
@@ -100,19 +102,19 @@ export default function HomePage() {
       )}
 
       {result && (
-        <div className="space-y-8">
-          <section>
-            <h2 className="font-serif text-xl mb-2">Summary</h2>
+        <div className="space-y-5">
+         <section className="bg-surface border border-rule rounded-2xl p-6">
+         <h2 className="font-display text-xl font-semibold mb-3 text-stamp">Summary</h2>
             <p className="text-ink/90">{result.summary}</p>
           </section>
 
-          <section>
-            <h2 className="font-serif text-xl mb-2">Simple Explanation</h2>
+          <section className="bg-surface border border-rule rounded-2xl p-6">
+            <h2 className="font-display text-xl font-semibold mb-3 text-stamp">Simple Explanation</h2>
             <p className="text-ink/90">{result.simpleExplanation}</p>
           </section>
 
-          <section>
-            <h2 className="font-serif text-xl mb-3">Key Vocabulary</h2>
+         <section className="bg-surface border border-rule rounded-2xl p-6">
+            <h2 className="font-display text-xl font-semibold mb-3 text-stamp">Key Vocabulary</h2>
             <ul className="space-y-2">
               {result.vocabulary.map((v, i) => (
                 <li key={i} className="flex gap-3">
