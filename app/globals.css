@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --color-paper: #08070d;
+  --color-paper: #1e1b2f;
   --color-ink: #f5f3ff;
   --color-highlighter: #8b5cf6;
   --color-stamp: #c4b5fd;
@@ -16,7 +16,7 @@
 }
 
 body {
-  background-color: var(--color-paper);
+  background: linear-gradient(to bottom, var(--color-paper), var(--color-surface));
   color: var(--color-ink);
   font-family: var(--font-inter), sans-serif;
 }

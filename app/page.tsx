@@ -45,7 +45,7 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen max-w-4xl mx-auto px-6 py-16">
-      <h1 className="font-display text-5xl font-bold tracking-tight mb-2">
+      <h1 className="font-display text-5xl font-bold tracking-tight mb-2 text-stamp"> 
         StudyLens AI
       </h1>
       <p className="text-ink/70 mb-10">
