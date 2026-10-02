@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import type { ProcessResult } from '@/types'
+import { useState, useEffect } from 'react'
+import type { ProcessResult, Study } from '@/types'
 
 const LANGUAGES = [
   { code: 'pt', label: 'Português' },
@@ -16,6 +16,28 @@ export default function HomePage() {
   const [result, setResult] = useState<ProcessResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [studies, setStudies] = useState<Study[]>([])
+
+
+  useEffect(() => {
+    async function loadStudies() {
+      try {
+        const response = await fetch('/api/studies')
+
+        if (!response.ok) {
+          throw new Error('Failed to load studies')
+        }
+
+        const data = await response.json()
+
+        setStudies(data.studies)
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    loadStudies()
+  }, [])
 
   async function handleProcess() {
     setLoading(true)
@@ -35,7 +57,13 @@ export default function HomePage() {
       }
 
       const data = await response.json()
+
       setResult(data.result)
+
+      setStudies((currentStudies) => [
+        data.study,
+        ...currentStudies,
+      ])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
@@ -45,7 +73,7 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen max-w-4xl mx-auto px-6 py-16">
-      <h1 className="font-display text-5xl font-bold tracking-tight mb-2 text-stamp"> 
+      <h1 className="font-display text-5xl font-bold tracking-tight mb-2 text-stamp">
         StudyLens AI
       </h1>
       <p className="text-ink/70 mb-10">
@@ -100,11 +128,39 @@ export default function HomePage() {
       {error && (
         <p className="text-sm text-red-700">{error}</p>
       )}
+      {studies.length > 0 && (
+        <section className="mt-12">
+          <h2 className="font-display text-2xl font-semibold mb-5">
+            My Studies
+          </h2>
+
+          <div className="space-y-4">
+            {studies.map((study) => (
+              <div
+                key={study.id}
+                className="bg-surface border border-rule rounded-2xl p-5"
+              >
+                <h3 className="font-display text-lg font-semibold mb-2">
+                  {study.title}
+                </h3>
+
+                <p className="text-muted text-sm mb-3">
+                  {study.summary}
+                </p>
+
+                <p className="text-xs text-muted">
+                  {study.source_language} → {study.target_language}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {result && (
         <div className="space-y-5">
-         <section className="bg-surface border border-rule rounded-2xl p-6">
-         <h2 className="font-display text-xl font-semibold mb-3 text-stamp">Summary</h2>
+          <section className="bg-surface border border-rule rounded-2xl p-6">
+            <h2 className="font-display text-xl font-semibold mb-3 text-stamp">Summary</h2>
             <p className="text-ink/90">{result.summary}</p>
           </section>
 
@@ -113,7 +169,7 @@ export default function HomePage() {
             <p className="text-ink/90">{result.simpleExplanation}</p>
           </section>
 
-         <section className="bg-surface border border-rule rounded-2xl p-6">
+          <section className="bg-surface border border-rule rounded-2xl p-6">
             <h2 className="font-display text-xl font-semibold mb-3 text-stamp">Key Vocabulary</h2>
             <ul className="space-y-2">
               {result.vocabulary.map((v, i) => (
