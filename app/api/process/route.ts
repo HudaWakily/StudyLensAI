@@ -4,6 +4,17 @@ import { supabase } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: 'You must be logged in' },
+        { status: 401 }
+      )
+    }
     const body = await request.json()
 
     const result = await processStudyText(
@@ -15,6 +26,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase
       .from('study_materials')
       .insert({
+        user_id: user.id,
         title: 'My Study',
         original_text: body.text,
         source_language: body.sourceLanguage,
