@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import type { ProcessResult, Study } from '@/types'
+import { createClient } from '@/lib/supabase/client'
 
 const LANGUAGES = [
   { code: 'pt', label: 'Português' },
@@ -10,6 +11,7 @@ const LANGUAGES = [
 ]
 
 export default function HomePage() {
+  const supabase = createClient()
   const [text, setText] = useState('')
   const [sourceLanguage, setSourceLanguage] = useState('pt')
   const [targetLanguage, setTargetLanguage] = useState('fa')
@@ -17,9 +19,13 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [studies, setStudies] = useState<Study[]>([])
+  const [user, setUser] = useState<any>(null)
+  const [authLoading, setAuthLoading] = useState(true)
 
 
   useEffect(() => {
+    if (!user) return
+
     async function loadStudies() {
       try {
         const response = await fetch('/api/studies')
@@ -37,8 +43,25 @@ export default function HomePage() {
     }
 
     loadStudies()
+  }, [user])
+
+  useEffect(() => {
+    async function getUser() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      setUser(user)
+      setAuthLoading(false)
+    }
+
+    getUser()
   }, [])
 
+  async function handleLogout() {
+    await supabase.auth.signOut()
+    setUser(null)
+  }
   async function handleProcess() {
     setLoading(true)
     setError(null)
@@ -73,6 +96,38 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen max-w-4xl mx-auto px-6 py-16">
+      <div className="flex items-center gap-3">
+        {user ? (
+          <>
+            <span className="text-sm text-muted">
+              {user.email}
+            </span>
+
+            <button
+              onClick={handleLogout}
+              className="rounded-xl border border-rule px-4 py-2 text-sm hover:bg-surface-soft"
+            >
+              Log out
+            </button>
+          </>
+        ) : (
+          <>
+            <a
+              href="/login"
+              className="rounded-xl border border-rule px-4 py-2 text-sm hover:bg-surface-soft"
+            >
+              Log in
+            </a>
+
+            <a
+              href="/signup"
+              className="rounded-xl bg-highlighter px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+            >
+              Sign up
+            </a>
+          </>
+        )}
+      </div>
       <h1 className="font-display text-5xl font-bold tracking-tight mb-2 text-stamp">
         StudyLens AI
       </h1>
@@ -80,50 +135,95 @@ export default function HomePage() {
         Paste your study text, choose your languages, and get a summary you can actually learn from.
       </p>
 
-      <div className="border-b border-rule pb-8 mb-8">
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Paste your study text here..."
-          rows={8}
-          className="w-full min-h-52 bg-surface border border-rule rounded-2xl p-4 mb-6 text-ink placeholder:text-muted focus:outline-none focus:border-highlighter transition"
-        />
-
-        <div className="flex gap-8 mb-6">
-          <div className="flex-1">
-            <label className="block text-sm text-ink/60 mb-1">Text is in</label>
-            <select
-              value={sourceLanguage}
-              onChange={(e) => setSourceLanguage(e.target.value)}
-              className="w-full bg-transparent border-b border-rule py-1 focus:outline-none focus:border-ink"
-            >
-              {LANGUAGES.map((lang) => (
-                <option key={lang.code} value={lang.code}>{lang.label}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex-1">
-            <label className="block text-sm text-ink/60 mb-1">Explain in</label>
-            <select
-              value={targetLanguage}
-              onChange={(e) => setTargetLanguage(e.target.value)}
-              className="w-full bg-transparent border-b border-rule py-1 focus:outline-none focus:border-ink"
-            >
-              {LANGUAGES.map((lang) => (
-                <option key={lang.code} value={lang.code}>{lang.label}</option>
-              ))}
-            </select>
-          </div>
+      {authLoading ? (
+        <div className="py-16 text-center">
+          <p className="text-muted">Checking your account...</p>
         </div>
+      ) : user ? (
+        <div className="border-b border-rule pb-8 mb-8">
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Paste your study text here..."
+            rows={8}
+            className="w-full min-h-52 bg-surface border border-rule rounded-2xl p-4 mb-6 text-ink placeholder:text-muted focus:outline-none focus:border-highlighter transition"
+          />
 
-        <button
-          onClick={handleProcess}
-          disabled={loading || text.trim().length === 0}
-          className="bg-highlighter text-white px-7 py-3 rounded-xl font-medium hover:bg-purple-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {loading ? 'Processing...' : 'Process'}
-        </button>
-      </div>
+          <div className="flex gap-8 mb-6">
+            <div className="flex-1">
+              <label className="block text-sm text-ink/60 mb-1">
+                Text is in
+              </label>
+
+              <select
+                value={sourceLanguage}
+                onChange={(e) => setSourceLanguage(e.target.value)}
+                className="w-full bg-transparent border-b border-rule py-1 focus:outline-none focus:border-ink"
+              >
+                {LANGUAGES.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex-1">
+              <label className="block text-sm text-ink/60 mb-1">
+                Explain in
+              </label>
+
+              <select
+                value={targetLanguage}
+                onChange={(e) => setTargetLanguage(e.target.value)}
+                className="w-full bg-transparent border-b border-rule py-1 focus:outline-none focus:border-ink"
+              >
+                {LANGUAGES.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <button
+            onClick={handleProcess}
+            disabled={loading || text.trim().length === 0}
+            className="bg-highlighter text-white px-7 py-3 rounded-xl font-medium hover:bg-purple-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Processing...' : 'Process'}
+          </button>
+        </div>
+      ) : (
+        <section className="border border-rule bg-surface rounded-2xl p-8 text-center">
+          <div className="text-4xl mb-4">🔒</div>
+
+          <h2 className="font-display text-2xl font-semibold mb-3">
+            Login required
+          </h2>
+
+          <p className="text-muted mb-6 max-w-md mx-auto">
+            Please log in or create an account to use StudyLens AI.
+          </p>
+
+          <div className="flex justify-center gap-3">
+            <a
+              href="/login"
+              className="rounded-xl border border-rule px-5 py-3 hover:bg-surface-soft transition"
+            >
+              Log in
+            </a>
+
+            <a
+              href="/signup"
+              className="rounded-xl bg-highlighter text-white px-5 py-3 hover:bg-purple-700 transition"
+            >
+              Sign up
+            </a>
+          </div>
+        </section>
+      )}
 
       {error && (
         <p className="text-sm text-red-700">{error}</p>
