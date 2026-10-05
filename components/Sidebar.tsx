@@ -7,6 +7,7 @@ type SidebarProps = {
   userEmail: string
   onNewStudy: () => void
   onLogout: () => void
+  onSelectStudy: (study: Study) => void
 }
 
 export default function Sidebar({
@@ -14,10 +15,11 @@ export default function Sidebar({
   userEmail,
   onNewStudy,
   onLogout,
+  onSelectStudy,
 }: SidebarProps) {
   return (
     <aside className="fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-rule bg-surface px-4 py-5">
-      
+
       {/* Logo */}
       <div className="mb-6 px-2">
         <h1 className="font-display text-xl font-bold text-stamp">
@@ -47,7 +49,9 @@ export default function Sidebar({
           <div className="space-y-1">
             {studies.map((study) => (
               <button
+
                 key={study.id}
+                onClick={() => onSelectStudy(study)}
                 className="w-full rounded-xl px-3 py-3 text-left transition hover:bg-surface-soft"
               >
                 <p className="truncate text-sm font-medium">
