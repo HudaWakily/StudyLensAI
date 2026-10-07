@@ -26,6 +26,7 @@ export default function HomePage() {
   const [selectedVocabulary, setSelectedVocabulary] = useState<
     { word: string; translation: string }[]
   >([])
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   useEffect(() => {
     if (!user) return
@@ -123,8 +124,56 @@ export default function HomePage() {
     }
   }
 
+  async function handleDeleteStudy(study: Study) {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${study.title ?? 'My Study'}"?`
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/studies/${study.id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error ?? 'Failed to delete study')
+      }
+
+      // Remove the study from the sidebar
+      setStudies((currentStudies) =>
+        currentStudies.filter((item) => item.id !== study.id)
+      )
+
+      // If the deleted study was open, go back to New Study
+      if (selectedStudy?.id === study.id) {
+        setSelectedStudy(null)
+        setSelectedVocabulary([])
+        setResult(null)
+      }
+    } catch (err) {
+      console.error(err)
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to delete study'
+      )
+    }
+  }
+
   return (
     <>
+      <button
+        onClick={() => setSidebarOpen((open) => !open)}
+        className="fixed left-4 top-4 z-50 rounded-xl border border-rule bg-surface p-2 text-ink shadow-sm transition hover:bg-surface-soft"
+        aria-label="Toggle sidebar"
+      >
+        ☰
+      </button>
       {user && !authLoading && (
         <Sidebar
           studies={studies}
@@ -132,6 +181,8 @@ export default function HomePage() {
           onNewStudy={handleNewStudy}
           onLogout={handleLogout}
           onSelectStudy={(study) => loadStudy(study.id)}
+          onDeleteStudy={handleDeleteStudy}
+           isOpen={sidebarOpen}
         />
       )}
 

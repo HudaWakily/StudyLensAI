@@ -8,6 +8,8 @@ type SidebarProps = {
   onNewStudy: () => void
   onLogout: () => void
   onSelectStudy: (study: Study) => void
+  onDeleteStudy: (study: Study) => void
+  isOpen: boolean
 }
 
 export default function Sidebar({
@@ -16,9 +18,14 @@ export default function Sidebar({
   onNewStudy,
   onLogout,
   onSelectStudy,
+  onDeleteStudy,
+  isOpen,
 }: SidebarProps) {
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-rule bg-surface px-4 py-5">
+    <aside
+      className={`fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-rule bg-surface px-4 py-5 transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+    >
 
       {/* Logo */}
       <div className="mb-6 px-2">
@@ -48,20 +55,31 @@ export default function Sidebar({
         ) : (
           <div className="space-y-1">
             {studies.map((study) => (
-              <button
-
+              <div
                 key={study.id}
-                onClick={() => onSelectStudy(study)}
-                className="w-full rounded-xl px-3 py-3 text-left transition hover:bg-surface-soft"
+                className="group flex items-center gap-1 rounded-xl transition hover:bg-surface-soft"
               >
-                <p className="truncate text-sm font-medium">
-                  {study.title ?? 'My Study'}
-                </p>
+                <button
+                  onClick={() => onSelectStudy(study)}
+                  className="min-w-0 flex-1 px-3 py-3 text-left"
+                >
+                  <p className="truncate text-sm font-medium">
+                    {study.title ?? 'My Study'}
+                  </p>
 
-                <p className="mt-1 truncate text-xs text-muted">
-                  {study.summary ?? 'No summary'}
-                </p>
-              </button>
+                  <p className="mt-1 truncate text-xs text-muted">
+                    {study.summary ?? 'No summary'}
+                  </p>
+                </button>
+
+                <button
+                  onClick={() => onDeleteStudy(study)}
+                  className="mr-2 rounded-lg p-2 text-muted opacity-0 transition hover:bg-red-500/10 hover:text-red-400 group-hover:opacity-100"
+                  aria-label={`Delete ${study.title ?? 'study'}`}
+                >
+                  🗑️
+                </button>
+              </div>
             ))}
           </div>
         )}
