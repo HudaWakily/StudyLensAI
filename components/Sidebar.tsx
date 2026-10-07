@@ -10,6 +10,7 @@ type SidebarProps = {
   onSelectStudy: (study: Study) => void
   onDeleteStudy: (study: Study) => void
   isOpen: boolean
+  selectedStudyId: string | null
 }
 
 export default function Sidebar({
@@ -20,6 +21,7 @@ export default function Sidebar({
   onSelectStudy,
   onDeleteStudy,
   isOpen,
+  selectedStudyId,
 }: SidebarProps) {
   return (
     <aside
@@ -57,11 +59,14 @@ export default function Sidebar({
             {studies.map((study) => (
               <div
                 key={study.id}
-                className="group flex items-center gap-1 rounded-xl transition hover:bg-surface-soft"
+                className="group flex items-center gap-1 rounded-xl transition"
               >
                 <button
                   onClick={() => onSelectStudy(study)}
-                  className="min-w-0 flex-1 px-3 py-3 text-left"
+                  className={`min-w-0 flex-1 rounded-xl px-3 py-3 text-left transition ${selectedStudyId === study.id
+                      ? 'bg-surface-soft'
+                      : 'hover:bg-surface-soft'
+                    }`}
                 >
                   <p className="truncate text-sm font-medium">
                     {study.title ?? 'My Study'}

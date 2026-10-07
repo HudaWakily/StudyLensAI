@@ -167,12 +167,38 @@ export default function HomePage() {
 
   return (
     <>
+      {user && !authLoading && sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-30 bg-black/50 md:hidden"
+          aria-hidden="true"
+        />
+      )}
+
+      {user && !authLoading && (
+        <Sidebar
+          studies={studies}
+          userEmail={user.email ?? ''}
+          onNewStudy={handleNewStudy}
+          onLogout={handleLogout}
+          onSelectStudy={(study) => loadStudy(study.id)}
+          onDeleteStudy={handleDeleteStudy}
+          isOpen={sidebarOpen}
+          selectedStudyId={selectedStudy?.id ?? null}
+        />
+      )}
       <button
         onClick={() => setSidebarOpen((open) => !open)}
-        className="fixed left-4 top-4 z-50 rounded-xl border border-rule bg-surface p-2 text-ink shadow-sm transition hover:bg-surface-soft"
+        className={`fixed top-4 z-50 flex h-10 w-10 items-center justify-center rounded-xl border border-rule bg-surface text-ink shadow-sm transition-all duration-300 ease-in-out hover:bg-surface-soft ${sidebarOpen ? 'left-[15rem]' : 'left-4'
+          }`}
         aria-label="Toggle sidebar"
       >
-        ☰
+        <span
+          className={`text-xl transition-transform duration-300 ${sidebarOpen ? 'rotate-90' : 'rotate-0'
+            }`}
+        >
+          {sidebarOpen ? '×' : '☰'}
+        </span>
       </button>
       {user && !authLoading && (
         <Sidebar
@@ -182,7 +208,8 @@ export default function HomePage() {
           onLogout={handleLogout}
           onSelectStudy={(study) => loadStudy(study.id)}
           onDeleteStudy={handleDeleteStudy}
-           isOpen={sidebarOpen}
+          isOpen={sidebarOpen}
+          selectedStudyId={selectedStudy?.id ?? null}
         />
       )}
 
