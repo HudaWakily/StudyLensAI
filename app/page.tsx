@@ -27,6 +27,7 @@ export default function HomePage() {
     { word: string; translation: string }[]
   >([])
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [deleteStudy, setDeleteStudy] = useState<Study | null>(null)
 
   useEffect(() => {
     if (!user) return
@@ -125,14 +126,6 @@ export default function HomePage() {
   }
 
   async function handleDeleteStudy(study: Study) {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${study.title ?? 'My Study'}"?`
-    )
-
-    if (!confirmed) {
-      return
-    }
-
     try {
       const response = await fetch(`/api/studies/${study.id}`, {
         method: 'DELETE',
@@ -143,17 +136,17 @@ export default function HomePage() {
         throw new Error(data.error ?? 'Failed to delete study')
       }
 
-      // Remove the study from the sidebar
       setStudies((currentStudies) =>
         currentStudies.filter((item) => item.id !== study.id)
       )
 
-      // If the deleted study was open, go back to New Study
       if (selectedStudy?.id === study.id) {
         setSelectedStudy(null)
         setSelectedVocabulary([])
         setResult(null)
       }
+
+      setDeleteStudy(null)
     } catch (err) {
       console.error(err)
 
@@ -165,6 +158,9 @@ export default function HomePage() {
     }
   }
 
+  function openDeleteModal(study: Study) {
+    setDeleteStudy(study)
+  }
   return (
     <>
       {user && !authLoading && sidebarOpen && (
@@ -182,7 +178,7 @@ export default function HomePage() {
           onNewStudy={handleNewStudy}
           onLogout={handleLogout}
           onSelectStudy={(study) => loadStudy(study.id)}
-          onDeleteStudy={handleDeleteStudy}
+          onDeleteStudy={openDeleteModal}
           isOpen={sidebarOpen}
           selectedStudyId={selectedStudy?.id ?? null}
         />
@@ -207,7 +203,7 @@ export default function HomePage() {
           onNewStudy={handleNewStudy}
           onLogout={handleLogout}
           onSelectStudy={(study) => loadStudy(study.id)}
-          onDeleteStudy={handleDeleteStudy}
+          onDeleteStudy={openDeleteModal}
           isOpen={sidebarOpen}
           selectedStudyId={selectedStudy?.id ?? null}
         />
@@ -403,6 +399,49 @@ export default function HomePage() {
                 ))}
               </ul>
             </section>
+          </div>
+        )}
+        {deleteStudy && (
+          <div
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm"
+            onClick={() => setDeleteStudy(null)}
+          >
+            <div
+              className="w-full max-w-md rounded-2xl border border-rule bg-surface p-6 shadow-2xl"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/10 text-xl">
+                🗑️
+              </div>
+
+              <h2 className="font-display text-xl font-semibold text-ink">
+                Delete study?
+              </h2>
+
+              <p className="mt-2 text-sm leading-6 text-muted">
+                Are you sure you want to delete{' '}
+                <span className="font-medium text-ink">
+                  "{deleteStudy.title ?? 'My Study'}"
+                </span>
+                ? This action cannot be undone.
+              </p>
+
+              <div className="mt-7 flex justify-end gap-3">
+                <button
+                  onClick={() => setDeleteStudy(null)}
+                  className="rounded-xl border border-rule px-4 py-2.5 text-sm font-medium transition hover:bg-surface-soft"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={() => handleDeleteStudy(deleteStudy)}
+                  className="rounded-xl bg-red-500 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-600"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </main>
