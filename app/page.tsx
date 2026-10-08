@@ -185,7 +185,7 @@ export default function HomePage() {
       )}
       <button
         onClick={() => setSidebarOpen((open) => !open)}
-        className={`fixed top-4 z-50 flex h-10 w-10 items-center justify-center rounded-xl border border-rule bg-surface text-ink shadow-sm transition-all duration-300 ease-in-out hover:bg-surface-soft ${sidebarOpen ? 'left-[15rem]' : 'left-4'
+        className={`fixed top-4 z-50 flex h-10 w-10 items-center justify-center rounded-xl border border-rule bg-surface text-ink shadow-sm transition-all duration-300 ease-in-out ${user && sidebarOpen ? 'left-[19rem]' : 'left-4'
           }`}
         aria-label="Toggle sidebar"
       >
@@ -193,7 +193,7 @@ export default function HomePage() {
           className={`text-xl transition-transform duration-300 ${sidebarOpen ? 'rotate-90' : 'rotate-0'
             }`}
         >
-          {sidebarOpen ? '×' : '☰'}
+          {user && sidebarOpen ? '×' : '☰'}
         </span>
       </button>
       {user && !authLoading && (
