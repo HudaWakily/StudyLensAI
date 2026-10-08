@@ -212,9 +212,10 @@ export default function HomePage() {
       )}
 
       <main
-        className={`min-h-screen ml-0 px-4 py-20 sm:px-6 md:py-16 transition-all duration-300 ease-in-out ${sidebarOpen ? 'md:ml-72' : 'md:ml-0'
+        className={`min-h-screen ml-0 px-4 py-20 sm:px-6 md:py-16 transition-all duration-300 ease-in-out ${user && sidebarOpen ? 'md:ml-72' : 'md:ml-0'
           }`}
       >
+
         <div className="mx-auto w-full max-w-5xl">
           <h1 className="font-display text-5xl font-bold tracking-tight mb-2 text-stamp">
             StudyLens AI
