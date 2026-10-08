@@ -25,7 +25,7 @@ export default function Sidebar({
 }: SidebarProps) {
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-rule bg-surface px-4 py-5 transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'
+      className={`fixed inset-y-0 left-0 z-40 flex w-[85vw] max-w-72 flex-col border-r border-rule bg-surface px-4 py-5 transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
     >
 
@@ -64,8 +64,8 @@ export default function Sidebar({
                 <button
                   onClick={() => onSelectStudy(study)}
                   className={`min-w-0 flex-1 rounded-xl px-3 py-3 text-left transition ${selectedStudyId === study.id
-                      ? 'bg-surface-soft'
-                      : 'hover:bg-surface-soft'
+                    ? 'bg-surface-soft'
+                    : 'hover:bg-surface-soft'
                     }`}
                 >
                   <p className="truncate text-sm font-medium">

@@ -209,241 +209,243 @@ export default function HomePage() {
         />
       )}
 
-      <main className="min-h-screen ml-72 px-6 py-16">
-        <div className="flex items-center gap-3">
+      <main
+        className={`min-h-screen ml-0 px-4 py-20 sm:px-6 md:py-16 transition-all duration-300 ease-in-out ${sidebarOpen ? 'md:ml-72' : 'md:ml-0'
+          }`}
+      >
+        <div className="mx-auto w-full max-w-5xl">
+          <h1 className="font-display text-5xl font-bold tracking-tight mb-2 text-stamp">
+            StudyLens AI
+          </h1>
+          <p className="text-ink/70 mb-10">
+            Paste your study text, choose your languages, and get a summary you can actually learn from.
+          </p>
 
-        </div>
-        <h1 className="font-display text-5xl font-bold tracking-tight mb-2 text-stamp">
-          StudyLens AI
-        </h1>
-        <p className="text-ink/70 mb-10">
-          Paste your study text, choose your languages, and get a summary you can actually learn from.
-        </p>
+          {authLoading ? (
+            <div className="py-16 text-center">
+              <p className="text-muted">Checking your account...</p>
+            </div>
+          ) : user ? (
+            selectedStudy ? null : (
+              <div className="border-b border-rule pb-8 mb-8">
+                <textarea
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  placeholder="Paste your study text here..."
+                  rows={8}
+                  className="w-full min-h-52 bg-surface border border-rule rounded-2xl p-4 mb-6 text-ink placeholder:text-muted focus:outline-none focus:border-highlighter transition"
+                />
 
-        {authLoading ? (
-          <div className="py-16 text-center">
-            <p className="text-muted">Checking your account...</p>
-          </div>
-        ) : user ? (
-          selectedStudy ? null : (
-            <div className="border-b border-rule pb-8 mb-8">
-              <textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Paste your study text here..."
-                rows={8}
-                className="w-full min-h-52 bg-surface border border-rule rounded-2xl p-4 mb-6 text-ink placeholder:text-muted focus:outline-none focus:border-highlighter transition"
-              />
+                <div className="flex gap-8 mb-6">
+                  <div className="flex-1">
+                    <label className="block text-sm text-ink/60 mb-1">
+                      Text is in
+                    </label>
 
-              <div className="flex gap-8 mb-6">
-                <div className="flex-1">
-                  <label className="block text-sm text-ink/60 mb-1">
-                    Text is in
-                  </label>
+                    <select
+                      value={sourceLanguage}
+                      onChange={(e) => setSourceLanguage(e.target.value)}
+                      className="w-full bg-transparent border-b border-rule py-1 focus:outline-none focus:border-ink"
+                    >
+                      {LANGUAGES.map((lang) => (
+                        <option key={lang.code} value={lang.code}>
+                          {lang.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                  <select
-                    value={sourceLanguage}
-                    onChange={(e) => setSourceLanguage(e.target.value)}
-                    className="w-full bg-transparent border-b border-rule py-1 focus:outline-none focus:border-ink"
-                  >
-                    {LANGUAGES.map((lang) => (
-                      <option key={lang.code} value={lang.code}>
-                        {lang.label}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex-1">
+                    <label className="block text-sm text-ink/60 mb-1">
+                      Explain in
+                    </label>
+
+                    <select
+                      value={targetLanguage}
+                      onChange={(e) => setTargetLanguage(e.target.value)}
+                      className="w-full bg-transparent border-b border-rule py-1 focus:outline-none focus:border-ink"
+                    >
+                      {LANGUAGES.map((lang) => (
+                        <option key={lang.code} value={lang.code}>
+                          {lang.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
-                <div className="flex-1">
-                  <label className="block text-sm text-ink/60 mb-1">
-                    Explain in
-                  </label>
-
-                  <select
-                    value={targetLanguage}
-                    onChange={(e) => setTargetLanguage(e.target.value)}
-                    className="w-full bg-transparent border-b border-rule py-1 focus:outline-none focus:border-ink"
-                  >
-                    {LANGUAGES.map((lang) => (
-                      <option key={lang.code} value={lang.code}>
-                        {lang.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <button
+                  onClick={handleProcess}
+                  disabled={loading || text.trim().length === 0}
+                  className="bg-highlighter text-white px-7 py-3 rounded-xl font-medium hover:bg-purple-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Processing...' : 'Process'}
+                </button>
               </div>
+            )
+          ) : (
+            <section className="border border-rule bg-surface rounded-2xl p-8 text-center">
+              <div className="text-4xl mb-4">🔒</div>
 
-              <button
-                onClick={handleProcess}
-                disabled={loading || text.trim().length === 0}
-                className="bg-highlighter text-white px-7 py-3 rounded-xl font-medium hover:bg-purple-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Processing...' : 'Process'}
-              </button>
-            </div>
-          )
-        ) : (
-          <section className="border border-rule bg-surface rounded-2xl p-8 text-center">
-            <div className="text-4xl mb-4">🔒</div>
-
-            <h2 className="font-display text-2xl font-semibold mb-3">
-              Login required
-            </h2>
-
-            <p className="text-muted mb-6 max-w-md mx-auto">
-              Please log in or create an account to use StudyLens AI.
-            </p>
-
-            <div className="flex justify-center gap-3">
-              <a
-                href="/login"
-                className="rounded-xl border border-rule px-5 py-3 hover:bg-surface-soft transition"
-              >
-                Log in
-              </a>
-
-              <a
-                href="/signup"
-                className="rounded-xl bg-highlighter text-white px-5 py-3 hover:bg-purple-700 transition"
-              >
-                Sign up
-              </a>
-            </div>
-          </section>
-        )}
-
-        {error && (
-          <p className="text-sm text-red-700">{error}</p>
-        )}
-        {selectedStudy && (
-
-          <section className="mt-8 space-y-5">
-            <div>
-              <h2 className="font-display text-2xl font-semibold">
-                {selectedStudy.title ?? 'My Study'}
+              <h2 className="font-display text-2xl font-semibold mb-3">
+                Login required
               </h2>
 
-              <p className="mt-1 text-sm text-muted">
-                {selectedStudy.source_language} → {selectedStudy.target_language}
+              <p className="text-muted mb-6 max-w-md mx-auto">
+                Please log in or create an account to use StudyLens AI.
               </p>
-            </div>
 
-            <section className="bg-surface border border-rule rounded-2xl p-6">
-              <h3 className="font-display text-xl font-semibold mb-3 text-stamp">
-                Summary
-              </h3>
+              <div className="flex justify-center gap-3">
+                <a
+                  href="/login"
+                  className="rounded-xl border border-rule px-5 py-3 hover:bg-surface-soft transition"
+                >
+                  Log in
+                </a>
 
-              <p className="text-ink/90">
-                {selectedStudy.summary}
-              </p>
+                <a
+                  href="/signup"
+                  className="rounded-xl bg-highlighter text-white px-5 py-3 hover:bg-purple-700 transition"
+                >
+                  Sign up
+                </a>
+              </div>
             </section>
+          )}
 
-            <section className="bg-surface border border-rule rounded-2xl p-6">
-              <h3 className="font-display text-xl font-semibold mb-3 text-stamp">
-                Simple Explanation
-              </h3>
+          {error && (
+            <p className="text-sm text-red-700">{error}</p>
+          )}
+          {selectedStudy && (
 
-              <p className="text-ink/90">
-                {selectedStudy.simple_explanation}
-              </p>
-            </section>
+            <section className="mt-8 space-y-5">
+              <div>
+                <h2 className="font-display text-2xl font-semibold">
+                  {selectedStudy.title ?? 'My Study'}
+                </h2>
 
-            {selectedVocabulary.length > 0 && (
+                <p className="mt-1 text-sm text-muted">
+                  {selectedStudy.source_language} → {selectedStudy.target_language}
+                </p>
+              </div>
+
               <section className="bg-surface border border-rule rounded-2xl p-6">
-                <h3 className="font-display text-xl font-semibold mb-4 text-stamp">
-                  Key Vocabulary
+                <h3 className="font-display text-xl font-semibold mb-3 text-stamp">
+                  Summary
                 </h3>
 
-                <div className="space-y-3">
-                  {selectedVocabulary.map((vocabulary) => (
-                    <div
-                      key={vocabulary.word}
-                      className="flex items-center justify-between gap-4 border-b border-rule pb-3 last:border-b-0"
-                    >
-                      <span className="font-medium">
-                        {vocabulary.word}
-                      </span>
-
-                      <span className="text-muted">
-                        {vocabulary.translation}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                <p className="text-ink/90">
+                  {selectedStudy.summary}
+                </p>
               </section>
-            )}
-          </section>
 
-        )}
+              <section className="bg-surface border border-rule rounded-2xl p-6">
+                <h3 className="font-display text-xl font-semibold mb-3 text-stamp">
+                  Simple Explanation
+                </h3>
 
-        {result && (
-          <div className="space-y-5">
-            <section className="bg-surface border border-rule rounded-2xl p-6">
-              <h2 className="font-display text-xl font-semibold mb-3 text-stamp">Summary</h2>
-              <p className="text-ink/90">{result.summary}</p>
+                <p className="text-ink/90">
+                  {selectedStudy.simple_explanation}
+                </p>
+              </section>
+
+              {selectedVocabulary.length > 0 && (
+                <section className="bg-surface border border-rule rounded-2xl p-6">
+                  <h3 className="font-display text-xl font-semibold mb-4 text-stamp">
+                    Key Vocabulary
+                  </h3>
+
+                  <div className="space-y-3">
+                    {selectedVocabulary.map((vocabulary) => (
+                      <div
+                        key={vocabulary.word}
+                        className="flex items-center justify-between gap-4 border-b border-rule pb-3 last:border-b-0"
+                      >
+                        <span className="font-medium">
+                          {vocabulary.word}
+                        </span>
+
+                        <span className="text-muted">
+                          {vocabulary.translation}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
             </section>
 
-            <section className="bg-surface border border-rule rounded-2xl p-6">
-              <h2 className="font-display text-xl font-semibold mb-3 text-stamp">Simple Explanation</h2>
-              <p className="text-ink/90">{result.simpleExplanation}</p>
-            </section>
+          )}
 
-            <section className="bg-surface border border-rule rounded-2xl p-6">
-              <h2 className="font-display text-xl font-semibold mb-3 text-stamp">Key Vocabulary</h2>
-              <ul className="space-y-2">
-                {result.vocabulary.map((v, i) => (
-                  <li key={i} className="flex gap-3">
-                    <span className="text-stamp font-medium">{v.word}</span>
-                    <span className="text-ink/60">{v.translation}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          </div>
-        )}
-        {deleteStudy && (
-          <div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm"
-            onClick={() => setDeleteStudy(null)}
-          >
+          {result && (
+            <div className="space-y-5">
+              <section className="bg-surface border border-rule rounded-2xl p-6">
+                <h2 className="font-display text-xl font-semibold mb-3 text-stamp">Summary</h2>
+                <p className="text-ink/90">{result.summary}</p>
+              </section>
+
+              <section className="bg-surface border border-rule rounded-2xl p-6">
+                <h2 className="font-display text-xl font-semibold mb-3 text-stamp">Simple Explanation</h2>
+                <p className="text-ink/90">{result.simpleExplanation}</p>
+              </section>
+
+              <section className="bg-surface border border-rule rounded-2xl p-6">
+                <h2 className="font-display text-xl font-semibold mb-3 text-stamp">Key Vocabulary</h2>
+                <ul className="space-y-2">
+                  {result.vocabulary.map((v, i) => (
+                    <li key={i} className="flex gap-3">
+                      <span className="text-stamp font-medium">{v.word}</span>
+                      <span className="text-ink/60">{v.translation}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            </div>
+          )}
+          {deleteStudy && (
             <div
-              className="w-full max-w-md rounded-2xl border border-rule bg-surface p-6 shadow-2xl"
-              onClick={(event) => event.stopPropagation()}
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm"
+              onClick={() => setDeleteStudy(null)}
             >
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/10 text-xl">
-                🗑️
-              </div>
+              <div
+                className="w-full max-w-md rounded-2xl border border-rule bg-surface p-6 shadow-2xl"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/10 text-xl">
+                  🗑️
+                </div>
 
-              <h2 className="font-display text-xl font-semibold text-ink">
-                Delete study?
-              </h2>
+                <h2 className="font-display text-xl font-semibold text-ink">
+                  Delete study?
+                </h2>
 
-              <p className="mt-2 text-sm leading-6 text-muted">
-                Are you sure you want to delete{' '}
-                <span className="font-medium text-ink">
-                  "{deleteStudy.title ?? 'My Study'}"
-                </span>
-                ? This action cannot be undone.
-              </p>
+                <p className="mt-2 text-sm leading-6 text-muted">
+                  Are you sure you want to delete{' '}
+                  <span className="font-medium text-ink">
+                    "{deleteStudy.title ?? 'My Study'}"
+                  </span>
+                  ? This action cannot be undone.
+                </p>
 
-              <div className="mt-7 flex justify-end gap-3">
-                <button
-                  onClick={() => setDeleteStudy(null)}
-                  className="rounded-xl border border-rule px-4 py-2.5 text-sm font-medium transition hover:bg-surface-soft"
-                >
-                  Cancel
-                </button>
+                <div className="mt-7 flex justify-end gap-3">
+                  <button
+                    onClick={() => setDeleteStudy(null)}
+                    className="rounded-xl border border-rule px-4 py-2.5 text-sm font-medium transition hover:bg-surface-soft"
+                  >
+                    Cancel
+                  </button>
 
-                <button
-                  onClick={() => handleDeleteStudy(deleteStudy)}
-                  className="rounded-xl bg-red-500 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-600"
-                >
-                  Delete
-                </button>
+                  <button
+                    onClick={() => handleDeleteStudy(deleteStudy)}
+                    className="rounded-xl bg-red-500 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </main>
     </>
   )
