@@ -46,11 +46,13 @@ export async function POST(request: NextRequest) {
     const { error: vocabularyError } = await supabase
       .from('vocabulary')
       .insert(
-        result.vocabulary.map((item) => ({
-          material_id: data.id,
-          word: item.word,
-          translation: item.translation,
-        }))
+        result.vocabulary.map(
+          (item: { word: string; translation: string }) => ({
+            material_id: data.id,
+            word: item.word,
+            translation: item.translation,
+          })
+        )
       )
 
     if (vocabularyError) {
