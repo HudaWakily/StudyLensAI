@@ -1,12 +1,26 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
-
+import { createClient } from '@/lib/supabase/server'
 
 export async function GET() {
   try {
+    const supabase = await createClient()
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: 'You must be logged in' },
+        { status: 401 }
+      )
+    }
+
     const { data, error } = await supabase
       .from('study_materials')
       .select('*')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
     if (error) {

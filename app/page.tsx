@@ -65,13 +65,29 @@ export default function HomePage() {
   }, [])
 
   async function handleLogout() {
-    await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      console.error('Logout failed:', error)
+      return
+    }
+
+    // Clear the previous user's data from the screen
     setUser(null)
+    setText('')
+    setResult(null)
+    setStudies([])
+    setSelectedStudy(null)
+    setSelectedVocabulary([])
+    setError(null)
+    setDeleteStudy(null)
+    setSidebarOpen(false)
   }
   function handleNewStudy() {
     setText('')
     setResult(null)
     setSelectedStudy(null)
+    setSelectedVocabulary([])
     setError(null)
   }
   async function loadStudy(studyId: string) {
@@ -198,18 +214,6 @@ export default function HomePage() {
           </span>
         </button>
       )}
-      {user && !authLoading && (
-        <Sidebar
-          studies={studies}
-          userEmail={user.email ?? ''}
-          onNewStudy={handleNewStudy}
-          onLogout={handleLogout}
-          onSelectStudy={(study) => loadStudy(study.id)}
-          onDeleteStudy={openDeleteModal}
-          isOpen={sidebarOpen}
-          selectedStudyId={selectedStudy?.id ?? null}
-        />
-      )}
 
       <main
         className={`min-h-screen ml-0 px-4 py-20 sm:px-6 md:py-16 transition-all duration-300 ease-in-out ${user && sidebarOpen ? 'md:ml-72' : 'md:ml-0'
@@ -319,8 +323,7 @@ export default function HomePage() {
           {error && (
             <p className="text-sm text-red-700">{error}</p>
           )}
-          {selectedStudy && (
-
+          {user && selectedStudy && (
             <section className="mt-8 space-y-5">
               <div>
                 <h2 className="font-display text-2xl font-semibold">
@@ -378,32 +381,6 @@ export default function HomePage() {
               )}
             </section>
 
-          )}
-
-          {result && (
-            <div className="space-y-5">
-              <section className="bg-surface border border-rule rounded-2xl p-6">
-                <h2 className="font-display text-xl font-semibold mb-3 text-stamp">Summary</h2>
-                <p className="text-ink/90">{result.summary}</p>
-              </section>
-
-              <section className="bg-surface border border-rule rounded-2xl p-6">
-                <h2 className="font-display text-xl font-semibold mb-3 text-stamp">Simple Explanation</h2>
-                <p className="text-ink/90">{result.simpleExplanation}</p>
-              </section>
-
-              <section className="bg-surface border border-rule rounded-2xl p-6">
-                <h2 className="font-display text-xl font-semibold mb-3 text-stamp">Key Vocabulary</h2>
-                <ul className="space-y-2">
-                  {result.vocabulary.map((v, i) => (
-                    <li key={i} className="flex gap-3">
-                      <span className="text-stamp font-medium">{v.word}</span>
-                      <span className="text-ink/60">{v.translation}</span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            </div>
           )}
           {deleteStudy && (
             <div
