@@ -52,16 +52,30 @@ export default function HomePage() {
   }, [user])
 
   useEffect(() => {
-    async function getUser() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+    let cancelled = false
 
-      setUser(user)
-      setAuthLoading(false)
+    async function getUser() {
+      try {
+        // getSession reads the saved session locally (no network request),
+        // so it's much faster than getUser for deciding what to show.
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
+
+        if (!cancelled) setUser(session?.user ?? null)
+      } catch (err) {
+        console.error('Auth check failed:', err)
+      } finally {
+        // Runs on success AND on error, so the page can never hang.
+        if (!cancelled) setAuthLoading(false)
+      }
     }
 
     getUser()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   async function handleLogout() {
@@ -228,98 +242,48 @@ export default function HomePage() {
             Paste your study text, choose your languages, and get a summary you can actually learn from.
           </p>
 
-          {authLoading ? (
-            <div className="py-16 text-center">
-              <p className="text-muted">Checking your account...</p>
-            </div>
-          ) : user ? (
+          {user ? (
             selectedStudy ? null : (
               <div className="border-b border-rule pb-8 mb-8">
-                <textarea
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  placeholder="Paste your study text here..."
-                  rows={8}
-                  className="w-full min-h-52 bg-surface border border-rule rounded-2xl p-4 mb-6 text-ink placeholder:text-muted focus:outline-none focus:border-highlighter transition"
-                />
-
-                <div className="flex gap-8 mb-6">
-                  <div className="flex-1">
-                    <label className="block text-sm text-ink/60 mb-1">
-                      Text is in
-                    </label>
-
-                    <select
-                      value={sourceLanguage}
-                      onChange={(e) => setSourceLanguage(e.target.value)}
-                      className="w-full bg-transparent border-b border-rule py-1 focus:outline-none focus:border-ink"
-                    >
-                      {LANGUAGES.map((lang) => (
-                        <option key={lang.code} value={lang.code}>
-                          {lang.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="flex-1">
-                    <label className="block text-sm text-ink/60 mb-1">
-                      Explain in
-                    </label>
-
-                    <select
-                      value={targetLanguage}
-                      onChange={(e) => setTargetLanguage(e.target.value)}
-                      className="w-full bg-transparent border-b border-rule py-1 focus:outline-none focus:border-ink"
-                    >
-                      {LANGUAGES.map((lang) => (
-                        <option key={lang.code} value={lang.code}>
-                          {lang.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleProcess}
-                  disabled={loading || text.trim().length === 0}
-                  className="bg-highlighter text-white px-7 py-3 rounded-xl font-medium hover:bg-purple-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  {loading ? 'Processing...' : 'Process'}
-                </button>
+                {/* keep your textarea, language selects and Process button exactly as they are */}
               </div>
             )
           ) : (
             <section className="border border-rule bg-surface rounded-2xl p-8 text-center">
-              <div className="text-4xl mb-4">🔒</div>
-
               <h2 className="font-display text-2xl font-semibold mb-3">
-                Login required
+                Try StudyLens AI
               </h2>
 
               <p className="text-muted mb-6 max-w-md mx-auto">
-                Please log in or create an account to use StudyLens AI.
+                See a sample result, or create a free account to use your own study material.
               </p>
 
-              <div className="flex justify-center gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
+                <a
+                  href="/demo"
+                  className="rounded-xl bg-highlighter text-white px-5 py-3 hover:bg-purple-700 transition"
+                >
+                  Try the demo
+                </a>
                 <a
                   href="/login"
                   className="rounded-xl border border-rule px-5 py-3 hover:bg-surface-soft transition"
                 >
                   Log in
                 </a>
-
                 <a
                   href="/signup"
-                  className="rounded-xl bg-highlighter text-white px-5 py-3 hover:bg-purple-700 transition"
+                  className="rounded-xl border border-rule px-5 py-3 hover:bg-surface-soft transition"
                 >
                   Sign up
                 </a>
               </div>
+
+              {authLoading && (
+                <p className="mt-6 text-sm text-muted">Checking your account...</p>
+              )}
             </section>
           )}
-
           {error && (
             <p className="text-sm text-red-700">{error}</p>
           )}
