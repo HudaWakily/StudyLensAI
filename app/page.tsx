@@ -244,8 +244,69 @@ export default function HomePage() {
 
           {user ? (
             selectedStudy ? null : (
-              <div className="border-b border-rule pb-8 mb-8">
-                {/* keep your textarea, language selects and Process button exactly as they are */}
+                       <div className="border-b border-rule pb-8 mb-8">
+                <textarea
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  placeholder="Paste your study text here..."
+                  rows={8}
+                  className="w-full min-h-52 bg-surface border border-rule rounded-2xl p-4 mb-6 text-ink placeholder:text-muted focus:outline-none focus:border-highlighter transition"
+                />
+
+                <div className="flex gap-8 mb-6">
+                  <div className="flex-1">
+                    <label
+                      htmlFor="sourceLanguage"
+                      className="block text-sm font-medium text-ink mb-1"
+                    >
+                      Source Language
+                    </label>
+                    <select
+                      id="sourceLanguage"
+                      value={sourceLanguage}
+                      onChange={(e) => setSourceLanguage(e.target.value)}
+                      className="w-full bg-surface border border-rule rounded-lg p-2 text-ink focus:outline-none focus:border-highlighter transition"
+                    >
+                      {LANGUAGES.map((lang) => (
+                        <option key={lang.code} value={lang.code}>
+                          {lang.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="flex-1">
+                    <label
+                      htmlFor="targetLanguage"
+                      className="block text-sm font-medium text-ink mb-1"
+                    >
+                      Target Language
+                    </label>
+                    <select
+                      id="targetLanguage"
+                      value={targetLanguage}
+                      onChange={(e) => setTargetLanguage(e.target.value)}
+                      className="w-full bg-surface border border-rule rounded-lg p-2 text-ink focus:outline-none focus:border-highlighter transition"
+                    >
+                      {LANGUAGES.map((lang) => (
+                        <option key={lang.code} value={lang.code}>
+                          {lang.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleProcess}
+                  disabled={loading || !text.trim()}
+                  className={`rounded-xl bg-highlighter text-white px-6 py-3 font-medium transition ${loading || !text.trim()
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'hover:bg-purple-700'
+                    }`}
+                >
+                  {loading ? 'Processing...' : 'Process'}
+                </button>
               </div>
             )
           ) : (
