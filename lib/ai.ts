@@ -7,7 +7,10 @@ export async function processStudyText(
   sourceLanguage: string,
   targetLanguage: string
 ) {
- const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' })
+const model = genAI.getGenerativeModel({
+  model: 'gemini-3.6-flash',
+  generationConfig: { responseMimeType: 'application/json' },
+})
 
   const prompt = `You are helping a student who is studying in ${sourceLanguage} but understands ${targetLanguage} better.
 
@@ -31,4 +34,25 @@ Include 5 vocabulary words, the most important/difficult ones in the text.`
 
   const cleaned = responseText.replace(/```json|```/g, '').trim()
   return JSON.parse(cleaned)
+}
+
+export async function extractTextFromImage(
+  base64Image: string,
+  language: string
+): Promise<string> {
+  const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' })
+
+  const result = await model.generateContent([
+    {
+      inlineData: {
+        data: base64Image,
+        mimeType: 'image/jpeg', // the browser always sends JPEG after compression
+      },
+    },
+    {
+      text: `Extract all the text from this image exactly as written. The text language is "${language}". Return only the extracted text, with no comments, explanations or markdown. If there is no readable text, return an empty string.`,
+    },
+  ])
+
+  return result.response.text().trim()
 }

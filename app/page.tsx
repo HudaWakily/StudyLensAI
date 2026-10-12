@@ -11,6 +11,26 @@ const LANGUAGES = [
   { code: 'en', label: 'English' },
 ]
 
+// Shrinks a photo in the browser before upload (phone photos can be 5-10 MB,
+// but Vercel rejects request bodies over about 4.5 MB). Always returns a JPEG.
+async function compressImage(file: File, maxSize = 1600): Promise<Blob> {
+  const bitmap = await createImageBitmap(file)
+  const scale = Math.min(1, maxSize / Math.max(bitmap.width, bitmap.height))
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.round(bitmap.width * scale)
+  canvas.height = Math.round(bitmap.height * scale)
+  canvas.getContext('2d')!.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+
+  return new Promise((resolve, reject) =>
+    canvas.toBlob(
+      (blob) =>
+        blob ? resolve(blob) : reject(new Error('Could not process image')),
+      'image/jpeg',
+      0.85
+    )
+  )
+}
+
 export default function HomePage() {
   const supabase = createClient()
   const [text, setText] = useState('')
@@ -18,6 +38,7 @@ export default function HomePage() {
   const [targetLanguage, setTargetLanguage] = useState('fa')
   const [result, setResult] = useState<ProcessResult | null>(null)
   const [loading, setLoading] = useState(false)
+  const [imageLoading, setImageLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [studies, setStudies] = useState<Study[]>([])
   const [user, setUser] = useState<any>(null)
@@ -120,6 +141,44 @@ export default function HomePage() {
       console.error(err)
     }
   }
+
+  async function handleImageSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      setError('Please choose an image file')
+      return
+    }
+
+    setImageLoading(true)
+    setError(null)
+
+    try {
+      const blob = await compressImage(file)
+      const form = new FormData()
+      form.append('image', blob, 'page.jpg')
+      form.append('language', sourceLanguage)
+
+      const response = await fetch('/api/extract', {
+        method: 'POST',
+        body: form,
+      })
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error ?? 'Could not read the image')
+      }
+
+      setText(data.text)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not read the image')
+    } finally {
+      setImageLoading(false)
+      e.target.value = '' // lets the user pick the same photo again
+    }
+  }
+
   async function handleProcess() {
     setLoading(true)
     setError(null)
@@ -244,7 +303,27 @@ export default function HomePage() {
 
           {user ? (
             selectedStudy ? null : (
-                       <div className="border-b border-rule pb-8 mb-8">
+              <div className="border-b border-rule pb-8 mb-8">
+                <div className="mb-4">
+                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-rule px-4 py-2.5 text-sm hover:bg-surface-soft transition">
+                    <span>
+                      {imageLoading
+                        ? 'Reading image...'
+                        : '📷 Upload a photo of your page'}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelected}
+                      disabled={imageLoading}
+                      className="hidden"
+                    />
+                  </label>
+                  <p className="mt-2 text-xs text-muted">
+                    The text will appear below. You can edit it before processing.
+                  </p>
+                </div>
+
                 <textarea
                   value={text}
                   onChange={(e) => setText(e.target.value)}
