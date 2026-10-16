@@ -24,12 +24,16 @@ export async function POST(request: NextRequest) {
       body.sourceLanguage,
       body.targetLanguage
     )
+    const title =
+      typeof result.title === 'string' && result.title.trim()
+        ? result.title.trim().slice(0, 60)
+        : 'My Study'
 
     const { data, error } = await supabase
       .from('study_materials')
       .insert({
         user_id: user.id,
-        title: 'My Study',
+        title: title,
         original_text: body.text,
         source_language: body.sourceLanguage,
         target_language: body.targetLanguage,

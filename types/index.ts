@@ -5,6 +5,7 @@ export type ProcessResult = {
     word: string
     translation: string
   }[]
+  title: string
 }
 
 export type Study = {
