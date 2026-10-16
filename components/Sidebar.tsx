@@ -82,7 +82,7 @@ export default function Sidebar({
                   className="mr-2 rounded-lg p-2 text-muted opacity-0 transition hover:bg-red-500/10 hover:text-red-400 group-hover:opacity-100"
                   aria-label={`Delete ${study.title ?? 'study'}`}
                 >
-                  🗑️
+                  Delete
                 </button>
               </div>
             ))}

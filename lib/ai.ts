@@ -1,17 +1,19 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import { text } from 'stream/consumers'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-const wordCount = text.trim().split(/\s+/).filter(Boolean).length
 
-// About 1 vocabulary word per 30 words of text, minimum 3, maximum 15
-const maxVocabulary = Math.min(15, Math.max(3, Math.ceil(wordCount / 30)))
 
 export async function processStudyText(
   text: string,
   sourceLanguage: string,
   targetLanguage: string
 ) {
+
+  const wordCount = text.trim().split(/\s+/).filter(Boolean).length
+
+  // About 1 vocabulary word per 30 words of text, minimum 3, maximum 15
+  const maxVocabulary = Math.min(15, Math.max(3, Math.ceil(wordCount / 30)))
+
   const model = genAI.getGenerativeModel({
     model: 'gemini-3.6-flash',
     generationConfig: { responseMimeType: 'application/json' },
@@ -71,7 +73,9 @@ export async function extractTextFromImage(
       },
     },
     {
-      text: `Extract all the text from this image exactly as written. The text language is "${language}". Return only the extracted text, with no comments, explanations or markdown. If there is no readable text, return an empty string.`,
+      text: `Extract all the text from this image exactly as written. The text language is "${language}".
+       Return only the extracted text, with no comments, explanations or markdown. If there is no readable text,
+       return an empty string.`,
     },
   ])
 
